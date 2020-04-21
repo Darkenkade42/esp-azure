@@ -205,7 +205,7 @@ component_compile_options (
 
 component_compile_definitions (
     USE_LWIP_SOCKET_FOR_AZURE_IOT
-	HSM_TYPE_X509
+#	HSM_TYPE_X509
 	HSM_TYPE_SAS_TOKEN
 	USE_HTTP
 	USE_MQTT
@@ -216,6 +216,5 @@ if(NOT CONFIG_AZURE_SDK_ENABLE_LOGGING)
 	add_definitions(-DNO_LOGGING)
 endif()
 
-if (CONFIG_DEVICE_COMMON_NAME)
-	add_definitions(-DUSE_PROV_MODULE)
-endif()
+add_definitions(-DUSE_PROV_MODULE)
+
