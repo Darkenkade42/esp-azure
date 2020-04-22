@@ -184,15 +184,18 @@ set (COMPONENT_SRCS
 	"${AZURE_IOT_SDK}/iothub_client/src/iothub.c"
 	)
 
-if (CONFIG_DEVICE_COMMON_NAME)
-	list (APPEND COMPONENT_SRCS "${AZURE_IOT_SDK}/provisioning_client/src/iothub_auth_client.c")
-endif()
+list (APPEND COMPONENT_SRCS "${AZURE_IOT_SDK}/provisioning_client/src/iothub_auth_client.c")
+
 
 set (COMPONENT_SUBMODULES "${AZURE_IOT_SDK}")
 
-set(COMPONENT_PRIV_REQUIRES "mbedtls esp-tls lwip")
+set(COMPONENT_PRIV_REQUIRES "mbedtls esp-tls lwip nomnio_iothub")
 
 register_component()
+
+set_source_files_properties("${AZURE_IOT_SDK}/iothub_client/src/iothubtransport_mqtt_common.c"
+  PROPERTIES COMPILE_FLAGS
+  -Wno-maybe-uninitialized)
 
 component_compile_options (
 	-Wno-unused-function
@@ -205,7 +208,8 @@ component_compile_options (
 
 component_compile_definitions (
     USE_LWIP_SOCKET_FOR_AZURE_IOT
-	HSM_TYPE_X509
+#	HSM_TYPE_X509
+        HSM_TYPE_SYMM_KEY
 	HSM_TYPE_SAS_TOKEN
 	USE_HTTP
 	USE_MQTT
@@ -216,6 +220,5 @@ if(NOT CONFIG_AZURE_SDK_ENABLE_LOGGING)
 	add_definitions(-DNO_LOGGING)
 endif()
 
-if (CONFIG_DEVICE_COMMON_NAME)
-	add_definitions(-DUSE_PROV_MODULE)
-endif()
+add_definitions(-DUSE_PROV_MODULE)
+
