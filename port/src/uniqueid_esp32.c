@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <ctype.h>
+#include <esp_system.h>
 #include "azure_c_shared_utility/uniqueid.h"
 #include "azure_c_shared_utility/xlogging.h"
 #include <time.h>
@@ -13,12 +15,7 @@ static const char tochar[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 static void generate128BitUUID(unsigned char* arrayOfByte)
 {
     size_t arrayIndex;
-
-    for (arrayIndex = 0; arrayIndex < 16; arrayIndex++)
-    {
-        arrayOfByte[arrayIndex] = (unsigned char)rand();
-    }
-
+    esp_fill_random(arrayOfByte,16);
     //
     // Stick in the version field for random uuid.
     //
@@ -36,7 +33,6 @@ static void generate128BitUUID(unsigned char* arrayOfByte)
 // TODO: The User will need to call srand before calling this function
 UNIQUEID_RESULT UniqueId_Generate(char* uid, size_t len)
 {
-	srand(time(NULL));
     UNIQUEID_RESULT result;
     unsigned char arrayOfChar[16];
 
@@ -65,7 +61,7 @@ UNIQUEID_RESULT UniqueId_Generate(char* uid, size_t len)
                     uid[characterPosition] = '-';
                     characterPosition++;
                 }
-                uid[characterPosition] = hexChar;
+                uid[characterPosition] = tolower(hexChar);
                 characterPosition++;
                 arrayOfChar[arrayIndex] = arrayOfChar[arrayIndex] >> 4;
             }
