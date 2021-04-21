@@ -24,24 +24,17 @@ static unsigned sntp_initialized = 0;
 
 void initialize_sntp(void)
 {
-	if(!sntp_initialized) {
-		printf("Initializing SNTP\n");
-		sntp_setoperatingmode(SNTP_OPMODE_POLL);
-		sntp_setservername(0, "pool.ntp.org");
-		sntp_init();
-
-		sntp_initialized = 1;
-	}
+	sntp_setoperatingmode(SNTP_OPMODE_POLL);
+	sntp_setservername(0, "pool.ntp.org");
+	sntp_setservername(1, "pool.ntp.org");
+	sntp_setservername(2, "pool.ntp.org");
+	sntp_setservername(3, "pool.ntp.org");
+	sntp_init();
 }
 
 void finalize_sntp(void)
 {
-	if(sntp_initialized) {
-		printf("Finalizing SNTP\n");
-		sntp_stop();
-
-		sntp_initialized = 0;
-	}
+	sntp_stop();
 }
 
 static void obtain_time(void)
@@ -51,8 +44,8 @@ static void obtain_time(void)
     struct tm timeinfo = { 0 };
     int retry = 0;
 
-    while(timeinfo.tm_year < (2016 - 1900) ) {
-        printf("Waiting for system time to be set... tm_year:%d[times:%d]\n", timeinfo.tm_year, ++retry);
+    while(timeinfo.tm_year < (2021 - 1900) ) {
+		ESP_LOGI("AGENT_TIME","Time is not set yet. timeinfo.tm_year:%d",timeinfo.tm_year);
         vTaskDelay(2000 / portTICK_PERIOD_MS);
         time(&now);
         localtime_r(&now, &timeinfo);
@@ -65,11 +58,8 @@ time_t sntp_get_current_timestamp()
 	struct tm timeinfo;
 	time(&now);
 	localtime_r(&now, &timeinfo);
-	// Is time set? If not, tm_year will be (1970 - 1900).
-	if (timeinfo.tm_year < (2016 - 1900)) {
-		printf("Time is not set yet. Connecting to WiFi and getting time over NTP. timeinfo.tm_year:%d\n",timeinfo.tm_year);
+	if (timeinfo.tm_year < (2021 - 1900)) {
 		obtain_time();
-		// update 'now' variable with current time
 		time(&now);
 	}
 	localtime_r(&now, &timeinfo);
